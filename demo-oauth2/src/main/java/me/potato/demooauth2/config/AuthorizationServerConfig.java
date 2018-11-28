@@ -1,6 +1,5 @@
 package me.potato.demooauth2.config;
 
-import me.potato.demooauth2.Users.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -13,7 +12,6 @@ import org.springframework.security.oauth2.config.annotation.web.configurers.Aut
 import org.springframework.security.oauth2.provider.token.TokenStore;
 
 import javax.annotation.Resource;
-import javax.naming.Name;
 
 @Configuration
 @EnableAuthorizationServer
