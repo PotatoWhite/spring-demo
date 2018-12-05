@@ -9,6 +9,7 @@ import java.util.Optional;
 
 @Log
 @RestController
+@RequestMapping("/v1")
 public class SimpleController {
 
 	@Autowired
@@ -24,10 +25,7 @@ public class SimpleController {
 	@GetMapping("/api/simples/{id}")
 	public Simple getSimple(@PathVariable Long id) {
 		Optional<Simple> byId = simpleRepository.findById(id);
-		if (byId.isPresent())
-			return byId.get();
-		else
-			return null;
+		return byId.orElse(null);
  	}
 
 	@PostMapping("/api/simples")

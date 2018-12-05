@@ -14,7 +14,15 @@ dependencies {
 }
 ~~~
 
-## 순서
+## Resource
+1. application.properties
+
+    ~~~conf
+    spring.jpa.show-sql=true
+    spring.jpa.properties.hibernate.format-sql=true
+    ~~~
+
+## SimpleController
 1. spring boot initializer를 통해 프로젝트를 생성한다.
 
 2. 패키지 구조를 만든다.
@@ -51,7 +59,9 @@ dependencies {
     }
     ~~~
 
-4. Simple을 저장할 Respository를 만든다
+4. Simple을 저장할 Respository를 작성한다.
+    - Jpa는 interface만 작성하면 된다.
+    - 별도의 Bean 등록과정은 필요 없으며, JpaRespository Interface 내부에서 Bean 등록한다.
 
     ~~~java
     package me.potato.demo.simplerestserver.simple;
@@ -60,5 +70,115 @@ dependencies {
 
     public interface SimpleRepository extends JpaRepository<Simple, Long> {
 
+    }
+    ~~~
+
+5. 외부의 http Connection을 받아들일 controller를 작성 한다.
+    - CRUD를 위해 다음의 Routing 정보를 등록한다.
+        - GET /api/simples -> getSimples
+        - GET /api/simples/{id} getSimple(@PathVariable Long id)
+        - POST /api/simples
+        - PATCH /api/simples
+        - DELETE /api/simples/{id}
+    ~~~java
+    package me.potato.demo.simplerestserver.simple;
+
+    import lombok.extern.java.Log;
+    import org.springframework.beans.factory.annotation.Autowired;
+    import org.springframework.web.bind.annotation.*;
+
+    import java.util.List;
+    import java.util.Optional;
+
+    @Log
+    @RestController
+    @RequestMapping("/v1")
+    public class SimpleController {
+
+        @Autowired
+        private SimpleRepository simpleRepository;
+
+
+        @GetMapping("/api/simples")
+        public List<Simple> getAllSimples() {
+            return simpleRepository.findAll();
+        }
+
+
+        @GetMapping("/api/simples/{id}")
+        public Simple getSimple(@PathVariable Long id) {
+            Optional<Simple> byId = simpleRepository.findById(id);
+            return byId.orElse(null);
+        }
+
+        @PostMapping("/api/simples")
+        public Simple createSimple(@RequestBody Simple simple) {
+            return simpleRepository.save(simple);
+        }
+
+        @PutMapping("/api/simples")
+        public Simple patchSimple(@RequestBody Simple simple) {
+            return simpleRepository.save(simple);
+        }
+
+        @DeleteMapping("/api/simples/{id}")
+        public void deleteSimple(@PathVariable Long id) {
+            simpleRepository.deleteById(id);
+        }
+    }
+    ~~~
+
+## V2 Simple Controller
+1. /api/simples/{id} 
+    - 호출 결과를 
+
+    ~~~java
+    package me.potato.demo.simplerestserver.simple;
+
+    import lombok.extern.java.Log;
+    import org.springframework.beans.factory.annotation.Autowired;
+    import org.springframework.web.bind.annotation.*;
+
+    import java.util.List;
+    import java.util.Optional;
+
+    @Log
+    @RestController
+    @RequestMapping("/v2")
+    public class V2SimpleController {
+
+        @Autowired
+        private SimpleRepository simpleRepository;
+
+
+        @GetMapping("/api/simples")
+        public List<Simple> getAllSimples() {
+            return simpleRepository.findAll();
+        }
+
+
+        @GetMapping("/api/simples/{id}")
+        public Simple getSimple(@PathVariable Long id) {
+            Optional<Simple> byId = simpleRepository.findById(id);
+            if (byId.isPresent())
+                return byId.get();
+            else
+                return null;
+        }
+
+        @PostMapping("/api/simples")
+        public Simple createSimple(@RequestBody Simple simple) {
+            return simpleRepository.save(simple);
+        }
+
+        @PutMapping("/api/simples")
+        public Simple patchSimple(@RequestBody Simple simple) {
+            return simpleRepository.save(simple);
+        }
+
+        @DeleteMapping("/api/simples/{id}")
+        public void deleteSimple(@PathVariable Long id) {
+            simpleRepository.deleteById(id);
+        }
     }
     ~~~
