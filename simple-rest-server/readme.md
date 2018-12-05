@@ -3,24 +3,34 @@
 
 
 ## Dependency
-Gradle
-~~~conf
-dependencies {
-    implementation('org.springframework.boot:spring-boot-starter-data-jpa')
-    implementation('org.springframework.boot:spring-boot-starter-web')
-    runtimeOnly('com.h2database:h2')
-    compileOnly('org.projectlombok:lombok')
-    testImplementation('org.springframework.boot:spring-boot-starter-test')
-}
-~~~
+1. Gradle
+    ~~~conf
+    dependencies {
+        implementation('org.springframework.boot:spring-boot-starter-data-jpa')
+        implementation('org.springframework.boot:spring-boot-starter-web')
+        runtimeOnly('com.h2database:h2')
+        compileOnly('org.projectlombok:lombok')
+        testImplementation('org.springframework.boot:spring-boot-starter-test')
+    }
+    ~~~
 
 ## Resource
 1. application.properties
-
     ~~~conf
     spring.jpa.show-sql=true
     spring.jpa.properties.hibernate.format-sql=true
     ~~~
+
+2. H2
+    ~~~conf
+    spring.h2.console.enabled=true
+    spring.h2.console.path=/h2-console
+    ~~~
+
+    - 테스트 용도로 사용할 메모리 DB
+    - 실행시마다 초기화 됨
+    - console 활성화
+    - jdbc:h2:mem:testdb
 
 ## SimpleController
 1. spring boot initializer를 통해 프로젝트를 생성한다.
@@ -128,57 +138,88 @@ dependencies {
     }
     ~~~
 
-## V2 Simple Controller
-1. /api/simples/{id} 
-    - 호출 결과를 
+## New Simple Controller
+1. Http Status를 이용하여 Client가 상태를 인지 할 수 있어야 한다.
+    - HEAD Method는 GET의 Header만을 이용한다.
+2. 예컨데
+    - 전체 data 조회시 Paging 한다.
+    - 개별 조회시 없으면 noContent를 반환한다.
+
 
     ~~~java
     package me.potato.demo.simplerestserver.simple;
 
     import lombok.extern.java.Log;
     import org.springframework.beans.factory.annotation.Autowired;
+    import org.springframework.data.domain.Page;
+    import org.springframework.data.domain.Pageable;
+    import org.springframework.http.HttpStatus;
+    import org.springframework.http.ResponseEntity;
     import org.springframework.web.bind.annotation.*;
 
-    import java.util.List;
     import java.util.Optional;
+
+    import static org.springframework.http.ResponseEntity.ok;
 
     @Log
     @RestController
     @RequestMapping("/v2")
-    public class V2SimpleController {
+    public class NewSimpleController {
 
         @Autowired
         private SimpleRepository simpleRepository;
 
 
         @GetMapping("/api/simples")
-        public List<Simple> getAllSimples() {
-            return simpleRepository.findAll();
+        public Page<Simple> getAllSimples(Pageable pageable) {
+            return simpleRepository.findAll(pageable);
+
         }
 
-
         @GetMapping("/api/simples/{id}")
-        public Simple getSimple(@PathVariable Long id) {
+        public ResponseEntity getSimple(@PathVariable Long id) {
             Optional<Simple> byId = simpleRepository.findById(id);
+
             if (byId.isPresent())
-                return byId.get();
+                return ok().body(byId.get());
             else
-                return null;
+                return ResponseEntity.noContent().build();
         }
 
         @PostMapping("/api/simples")
-        public Simple createSimple(@RequestBody Simple simple) {
-            return simpleRepository.save(simple);
+        public ResponseEntity createSimple(@RequestBody Simple simple) {
+            Optional<Simple> byDataString = simpleRepository.findByDataString(simple.getDataString());
+            if (byDataString.isPresent())
+                return ResponseEntity.status(HttpStatus.CREATED).body(simpleRepository.saveAndFlush(simple));
+            else
+                return ResponseEntity.badRequest().build();
         }
 
-        @PutMapping("/api/simples")
-        public Simple patchSimple(@RequestBody Simple simple) {
-            return simpleRepository.save(simple);
+        @PatchMapping("/api/simples")
+        public ResponseEntity patchSimple(@RequestBody Simple simple) {
+
+            Optional<Simple> byId = simpleRepository.findById(simple.getId());
+            if (byId.isPresent())
+                return ResponseEntity.status(HttpStatus.OK).body(simpleRepository.saveAndFlush(simple));
+            else
+                return ResponseEntity.status(HttpStatus.CREATED).body(simpleRepository.saveAndFlush(simple));
+
         }
 
         @DeleteMapping("/api/simples/{id}")
-        public void deleteSimple(@PathVariable Long id) {
-            simpleRepository.deleteById(id);
+        public ResponseEntity deleteSimple(@PathVariable Long id) {
+
+            Optional<Simple> byId = simpleRepository.findById(id);
+
+            if (byId.isPresent()) {
+                simpleRepository.deleteById(id);
+                return ResponseEntity.status(HttpStatus.OK).build();
+            } else {
+                return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+            }
+
         }
     }
+
+
     ~~~
