@@ -1,0 +1,10 @@
+POST http://localhost:8080/v2/api/simples
+Content-Type: application/json
+
+{
+    "dataString":"string"
+}
+
+
+###
+GET http://localhost:8080/v2/api/simples
