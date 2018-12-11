@@ -3,7 +3,6 @@ package me.potato.ribbonhardcodeclient.service.proxy.simple;
 import lombok.extern.slf4j.Slf4j;
 import me.potato.ribbonhardcodeclient.service.proxy.util.RestResponsePage;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cloud.netflix.ribbon.RibbonClient;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -17,6 +16,7 @@ import java.util.Optional;
 
 @Slf4j
 @Service
+//@RibbonClient("simple-rest-server")
 public class SimpleClient {
 
 	@Autowired
