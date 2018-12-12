@@ -39,11 +39,7 @@ public class NewSimpleController {
 
 	@PostMapping("/api/simples")
 	public ResponseEntity createSimple(@RequestBody Simple simple) {
-		Optional<Simple> byDataString = simpleRepository.findByDataString(simple.getDataString());
-		if (byDataString.isPresent())
 			return ResponseEntity.status(HttpStatus.CREATED).body(simpleRepository.saveAndFlush(simple));
-		else
-			return ResponseEntity.badRequest().build();
 	}
 
 	@PatchMapping("/api/simples")
