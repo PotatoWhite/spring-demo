@@ -1,4 +1,4 @@
-# Ribbon Rest CLient
+# Ribbon Rest Client
  Load Balanced 기능을 포함한 Rest Client를 만들어 본다.
 
 
