@@ -3,6 +3,7 @@ package me.potato.ribbonhardcodeclient.service.proxy.simple;
 import lombok.extern.slf4j.Slf4j;
 import me.potato.ribbonhardcodeclient.service.proxy.util.RestResponsePage;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.client.circuitbreaker.EnableCircuitBreaker;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -32,7 +33,6 @@ public class SimpleClient {
 
 		return Collections.emptyList();
 	}
-
 
 	private Optional<PagedSimpleResponse> getFromExtService(Pageable page) throws RestClientException {
 
