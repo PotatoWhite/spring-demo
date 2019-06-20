@@ -128,7 +128,7 @@
     import org.springframework.web.bind.annotation.*;
 
     @RestController
-    @RequestMapping("/simples")
+    @RequestMapping("/v1/simples")
     public class SimpleController {
         @Autowired
         private SimpleRepository simpleRepository;
@@ -138,12 +138,12 @@
             return simpleRepository.findById(id).orElse(null);
         }
 
-        @PostMapping("/")
+        @PostMapping("")
         public Simple createSimple(@RequestBody Simple aSimple){
             return simpleRepository.save(aSimple);
         }
 
-        @PutMapping("/")
+        @PutMapping("")
         public Simple updateSimple(@RequestBody Simple aSimple){
             return simpleRepository.save(aSimple);
         }
@@ -181,7 +181,7 @@
         @Autowired
         private SimpleRepository simpleRepository;
 
-        @GetMapping("/")
+        @GetMapping("")
         public Page<Simple> getAllSimples(Pageable pageable) {
             return simpleRepository.findAll(pageable);
         }
@@ -196,7 +196,7 @@
                 return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         }
 
-        @PostMapping("/")
+        @PostMapping("")
         public ResponseEntity createSimple(@RequestBody Simple aSimple) {
             boolean isExist = simpleRepository.existsById(aSimple.getId());
             if (isExist)
@@ -205,7 +205,7 @@
             return ResponseEntity.status(HttpStatus.CREATED).body(simpleRepository.save(aSimple));
         }
 
-        @PutMapping("/")
+        @PutMapping("")
         public ResponseEntity updateSimple(@RequestBody Simple aSimple) {
             boolean isExist = simpleRepository.existsById(aSimple.getId());
             if (!isExist)
